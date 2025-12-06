@@ -67,6 +67,10 @@ spring.sql.init.data-locations=classpath:data.sql
 1. H2 Database をインストールする
   「スッキリわかるサーブレット&JSP入門」をやっていればすでにインストール済みのはずです。インストールされていなければこの本の Web 付録を参考にしてください。
 
+1. データベースを作成する
+  H２ コンソールを起動し、「Generic H2(Embeded)」を選択。JDBC URL に「jdbc:h2:~/testdb」を指定して「接続」をクリックすると testdb データベースが作成される。  
+  ※「Generic H2(Embeded)」を使うのは最初のデータベース作成時のみ。以降は「Generic H2(Server)」で JDBC URL に「jdbc:h2:tcp://localhost/~/testdb」で利用する。
+
 1. application.properties の spring.datasource.url を下記のように変更してサーバーモードを使用する
 
   ```properties
@@ -100,26 +104,16 @@ CREATE TABLE IF NOT EXISTS employee (
 
 ### 6.1.1 ライブラリの仕様・・・webjars
 
-webjars-locator のバージョン 0.52 (2024/7/5 時点の最新)が使用できます。
+webjars-locator ではなく、後継の webjars-locator-lite を利用します。
 
 [pom.xml]
 
 ```xml
-<!-- webjars-locator -->
+<!-- webjars-locator-lite -->
 <dependency>
     <groupId>org.webjars</groupId>
-    <artifactId>webjars-locator</artifactId>
-    <version>0.47</version>
+    <artifactId>webjars-locator-lite</artifactId>
 </dependency>
-```
-
-※2025/11/28現在、webjars-locatorをインストールしても動作しません。そのためHTMLでのwebjarsの呼び出しは「バージョン番号を含めたパス指定」で行ってください。
-
-```html
-	<link rel="stylesheet" th:href="@{/webjars/bootstrap/4.5.3/css/bootstrap.min.css}">
-  <link rel="stylesheet" th:href="@{/css/user/signup.css}">
-	<script th:src="@{/webjars/jquery/3.5.1/jquery.min.js}" defer></script>
-	<script th:src="@{/webjars/bootstrap/4.5.3/js/bootstrap.min.js}" defer></script>
 ```
 
 ### 6.3.1 バリデーションの実装
@@ -160,8 +154,6 @@ import jakarta.validation.constraints.Pattern;
 
 ### 8.2 MyBatis 基本編
 
-※MyBatis-Spring-Boot-Starter はまだ Spring Boot 4.x に対応していない(2025/11/29 時点(https://github.com/mybatis/spring-boot-starter))ので、pom.xml に追加すると Spring 起動に失敗します。対応するまでは Spring Boot 3.5 系をお使いください。 
-
 [pom.xml]
 
 ```xml
@@ -169,15 +161,17 @@ import jakarta.validation.constraints.Pattern;
 <dependency>
     <groupId>org.mybatis.spring.boot</groupId>
     <artifactId>mybatis-spring-boot-starter</artifactId>
-    <version>3.0.3</version>
+    <version>4.0.0</version>
 </dependency>
 <!-- Model Mapper -->
 <dependency>
     <groupId>org.modelmapper.extensions</groupId>
     <artifactId>modelmapper-spring</artifactId>
-    <version>3.2.0</version>
+    <version>3.2.6</version>
 </dependency>
 ```
+
+※ 2025/12/6 現在、modelmapper-spring 3.2.6 を使うと起動時に「A terminally deprecated method in sun.misc.Unsafe has been called」と Warning が出ます。
 
 ## 9 章 AOP
 
