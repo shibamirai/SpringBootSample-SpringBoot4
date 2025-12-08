@@ -59,3 +59,40 @@ spring.sql.init.mode=ALWAYS
 spring.sql.init.schema-locations=classpath:schema.sql
 spring.sql.init.data-locations=classpath:data.sql
 ```
+
+## 4 章 Web アプリケーションの概要
+
+変更なし
+
+## 5 章 Dependency Injection(依存性の注入)
+
+変更なし
+
+## 6 章 バインド&バリデーション(入力チェック)
+
+### 6.1.1 ライブラリの仕様・・・webjars
+
+webjars-locator ではなく、後継の webjars-locator-lite を利用します。
+
+[pom.xml]
+
+変更前
+
+```xml
+<!-- webjars-locator -->
+<dependency>
+  <groupId>org.webjars</groupId>
+  <artifactId>webjars-locator</artifactId>
+  <version>0.52</version>
+</dependency>
+```
+
+変更後
+
+```xml
+<!-- webjars-locator-lite -->
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>webjars-locator-lite</artifactId>
+</dependency>
+```
