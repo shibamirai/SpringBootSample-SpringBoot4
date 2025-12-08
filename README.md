@@ -130,3 +130,30 @@ import jakarta.validation.constraints.Pattern;
 ## 7 章 画面レイアウト
 
 変更なし
+
+## 8 章 MyBatis
+
+### 8.2 MyBatis 基本編
+
+MyBatis は Spring Boot 4 に対応したバージョンを使用します。ModelMapper も最新のものを使用します。
+
+[pom.xml]
+
+```xml
+<!-- MyBatis -->
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>4.0.0</version>
+</dependency>
+<!-- Model Mapper -->
+<dependency>
+    <groupId>org.modelmapper.extensions</groupId>
+    <artifactId>modelmapper-spring</artifactId>
+    <version>3.2.6</version>
+</dependency>
+```
+
+※ 2025/12/8 現在、下記の症状がありますが動作には問題ありません
+- application.properties の `mybatis.mapper-locations` で「unknown property」と警告がでる
+- modelmapper-spring 3.2.6 を使うと起動時に「A terminally deprecated method in sun.misc.Unsafe has been called」と Warning がでる
