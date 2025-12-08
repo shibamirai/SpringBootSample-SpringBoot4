@@ -155,5 +155,5 @@ MyBatis は Spring Boot 4 に対応したバージョンを使用します。Mod
 ```
 
 ※ 2025/12/8 現在、下記の症状がありますが動作には問題ありません
-- application.properties の `mybatis.mapper-locations` で「unknown property」と警告がでる
+- application.properties の mybatis に関する設定 で「unknown property」と警告がでる
 - modelmapper-spring 3.2.6 を使うと起動時に「A terminally deprecated method in sun.misc.Unsafe has been called」と Warning がでる
