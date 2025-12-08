@@ -29,3 +29,33 @@ Java25 が推奨されているため、Pleiades から最新の Eclipse をイ�
   | SQL                  | JDBC API<br>Spring Data JDBC<br>H2 Database |
   | テンプレートエンジン | Thymeleaf                                   |
   | Web                  | Spring Web                                  |
+
+## 3 章 Hello World ・・・簡単なサンプル
+
+### 3.3 データベースから値を取得する
+
+Spring 起動時に実行する SQL の設定項目が変更されています。
+
+[application.properties]
+
+変更前
+
+```properties
+spring.datasouce.username=sa
+spring.datasouce.password=
+spring.datasource.sql-script-encoding=UTF-8
+spring.datasource.initialize=true
+spring.datasource.schema=classpath:schema.sql
+spring.datasource.data=classpath:data.sql
+```
+
+変更後
+
+```properties
+spring.datasource.username=sa
+spring.datasource.password=
+spring.sql.init.encoding=UTF-8
+spring.sql.init.mode=ALWAYS
+spring.sql.init.schema-locations=classpath:schema.sql
+spring.sql.init.data-locations=classpath:data.sql
+```
