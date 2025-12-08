@@ -126,3 +126,7 @@ import jakarta.validation.constraints.Pattern;
 ```
 
 (上記だけでなく、以降に出てくるすべてのコードの javax パッケージを変更します)
+
+## 7 章 画面レイアウト
+
+変更なし
