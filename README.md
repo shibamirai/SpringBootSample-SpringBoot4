@@ -415,3 +415,52 @@ public class JavaConfig {
     // ここまで
 }
 ```
+
+### 11.2.4 パスワードの暗号化
+
+パスワードの暗号化は本の通りです。
+
+[SecurityConfig.java]
+
+```java
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+	/** H2 コンソール用のセキュリティ設定 */
+	@Bean
+	@Order(1)
+    SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+        ...(省略)
+    }
+
+	/** このアプリのセキュリティ設定 */
+	@Bean
+	@Order(2)
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        ...(省略)
+    }
+
+    // 変更点 ここから
+    @Bean
+    InMemoryUserDetailsManager userDetailsService() {
+        PasswordEncoder encoder = passwordEncoder();
+
+        UserDetails user = User.withUsername("user")
+			.password(encoder.encode("user"))
+			.roles("GENERAL")
+			.build();
+        UserDetails admin = User.withUsername("admin")
+			.password(encoder.encode("admin"))
+			.roles("ADMIN")
+			.build();
+        return new InMemoryUserDetailsManager(user, admin);
+    }
+    // ここまで
+}
+```
