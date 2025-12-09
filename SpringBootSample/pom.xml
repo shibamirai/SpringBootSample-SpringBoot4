@@ -159,6 +159,11 @@
 			<version>2.3.2</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- JPA -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

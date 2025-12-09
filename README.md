@@ -716,3 +716,29 @@ function createDataTables() {
     });
 }
 ```
+
+## 13 章 Spring Data JPA
+
+javax パッケージは jakarta パッケージに修正してください。(MUser, Department, SalaryKey, Salary の 4 クラス)
+
+### 13.2.1 CRUD
+
+JPA の設定が変更になっています。
+
+[application.properties]
+
+```properties
+#=====================
+# JPA
+#=====================
+# デーブル自動作成
+spring.jpa.hibernate.ddl-auto=none
+# SQLログ出力
+spring.jpa.show-sql=true
+# ログのSQL文を見やすくフォーマットする
+spring.jpa.properties.hibernate.format_sql=true
+# バインドパラメーター出力
+logging.level.org.hibernate.orm.jdbc.bind=trace
+# 起動時の警告をなくすために明示的に有効にしておく
+spring.jpa.open-in-view=true
+```
