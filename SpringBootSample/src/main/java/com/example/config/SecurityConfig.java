@@ -47,6 +47,7 @@ public class SecurityConfig {
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.requestMatchers("/login").permitAll()
 				.requestMatchers("/user/signup").permitAll()
+				.requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
 				.anyRequest().authenticated()
 			)
 			.formLogin(login -> login

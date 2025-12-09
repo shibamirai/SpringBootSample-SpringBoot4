@@ -594,3 +594,53 @@ public class SecurityConfig {
     ...(省略)
 }
 ```
+
+### 11.3.1 URL の認可
+
+セキュリティ設定クラスへの URL 認可の設定も、antMatchers() ではなく requestMatchers() を使います。
+
+[SecurityConfig.java]
+
+```java
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+    ...(省略)
+
+	/** このアプリのセキュリティ設定 */
+	@Bean
+	@Order(2)
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.requestMatchers("/login").permitAll()
+				.requestMatchers("/user/signup").permitAll()
+                // 変更点 ここから
+                .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
+                // ここまで
+				.anyRequest().authenticated()
+			)
+			.formLogin(login -> login
+				.loginPage("/login")
+				.loginProcessingUrl("/login")
+				.usernameParameter("userId")
+				.passwordParameter("password")
+				.defaultSuccessUrl("/user/list", true)
+				.failureUrl("/login?error")
+			)
+			.logout(logout -> logout
+				.logoutUrl("/logout")
+				.logoutSuccessUrl("/login?logout")
+			// )
+			// // CSRF 対策を無効に設定 (一時的)
+			// .csrf(csrf -> csrf
+		    //     .disable()
+			);
+		return http.build();
+	}
+
+    ...(省略)
+}
+```
