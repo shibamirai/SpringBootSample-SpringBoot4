@@ -464,3 +464,37 @@ public class SecurityConfig {
     // ここまで
 }
 ```
+
+### 11.2.5 ユーザーデータ認証
+
+本の通りに UserDetailService の実装クラス UserDetailServiceImpl を作成すれば、SecurityConfig から InMemoryUserDetailsManager の Bean 定義を削除するだけでユーザーデータ認証が行われるようになります。
+
+[SecurityConfig.java]
+
+```java
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+    ...(省略)
+
+    // 変更点 ここから
+    /*
+    @Bean
+    InMemoryUserDetailsManager userDetailsService() {
+        PasswordEncoder encoder = passwordEncoder();
+
+        UserDetails user = User.withUsername("user")
+			.password(encoder.encode("user"))
+			.roles("GENERAL")
+			.build();
+        UserDetails admin = User.withUsername("admin")
+			.password(encoder.encode("admin"))
+			.roles("ADMIN")
+			.build();
+        return new InMemoryUserDetailsManager(user, admin);
+    }
+    */
+    // ここまで
+}
+```
