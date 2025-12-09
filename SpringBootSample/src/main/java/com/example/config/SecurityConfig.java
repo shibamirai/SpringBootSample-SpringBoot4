@@ -42,6 +42,14 @@ public class SecurityConfig {
 				.requestMatchers("/user/signup").permitAll()
 				.anyRequest().authenticated()
 			)
+			.formLogin(login -> login
+				.loginPage("/login")
+				.loginProcessingUrl("/login")
+				.usernameParameter("userId")
+				.passwordParameter("password")
+				.defaultSuccessUrl("/", true)
+				.failureUrl("/login?error")
+			)
 			// CSRF 対策を無効に設定 (一時的)
 			.csrf(csrf -> csrf
 		        .disable()

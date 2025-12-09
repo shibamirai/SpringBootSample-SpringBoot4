@@ -267,3 +267,46 @@ public class SecurityConfig {
 authorizeHttpRequests()を使用するようになったことで、直リンクをしたときは 403 エラーの共通画面ではなく、ログインページにリダイレクトするようになっています。
 ただし、ここではまだログイン処理を実装していない(11.2.2 で実装)ためリダイレクトされず、403 のエラーコードだけが返されるようになっているため、アプリで用意した共通エラー画面ではなくブラウザのエラー画面が表示されます。
 （403 エラーは 11.3「認可」のところで出すことができます。）
+
+### 11.2.2 ログイン処理
+
+セキュリティ設定クラスの http.formLogin() もラムダ式で設定します。
+
+[SecurityConfig.java]
+
+```java
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+	...(省略)
+
+	/** このアプリのセキュリティ設定 */
+	@Bean
+	@Order(2)
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.requestMatchers("/login").permitAll()
+				.requestMatchers("/user/signup").permitAll()
+				.anyRequest().authenticated()
+			)
+	        // 変更点 ここから
+			.formLogin(login -> login
+				.loginPage("/login")
+				.loginProcessingUrl("/login")
+				.usernameParameter("userId")
+				.passwordParameter("password")
+				.defaultSuccessUrl("/", true)
+				.failureUrl("/login?error")
+			)
+	        // ここまで
+			// CSRF 対策を無効に設定 (一時的)
+			.csrf(csrf -> csrf
+		        .disable()
+			);
+		return http.build();
+	}
+}
+```
