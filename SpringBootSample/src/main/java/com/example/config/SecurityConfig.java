@@ -7,11 +7,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
 	/** H2 コンソール用のセキュリティ設定 */
 	@Bean
@@ -47,7 +57,7 @@ public class SecurityConfig {
 				.loginProcessingUrl("/login")
 				.usernameParameter("userId")
 				.passwordParameter("password")
-				.defaultSuccessUrl("/", true)
+				.defaultSuccessUrl("/user/list", true)
 				.failureUrl("/login?error")
 			)
 			// CSRF 対策を無効に設定 (一時的)
@@ -56,4 +66,18 @@ public class SecurityConfig {
 			);
 		return http.build();
 	}
+	
+	@Bean
+	InMemoryUserDetailsManager userDetailsService() {
+		UserDetails user = User.withUsername("user")
+			.password("user")
+			.roles("GENERAL")
+			.build();
+		UserDetails admin = User.withUsername("admin")
+			.password("admin")
+			.roles("ADMIN")
+			.build();
+		return new InMemoryUserDetailsManager(user, admin);
+	}
+
 }

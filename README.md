@@ -310,3 +310,108 @@ public class SecurityConfig {
 	}
 }
 ```
+
+### 11.2.3 インメモリ認証
+
+インメモリ認証の設定は auth.inMemoryAuthentication() メソッドではなく、 InMemoryUserDetailsManager を Bean 定義して行うように変更します。この中では SpringSecurity で用意されている User クラスを使って user と admin の２人のユーザーを作成しています。
+
+[SecurityConfig.java]
+
+```java
+package com.example.config;
+
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+    // 変更点 ここから
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    // ここまで
+
+	/** H2 コンソール用のセキュリティ設定 */
+	@Bean
+	@Order(1)
+    SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+        ...(省略)
+    }
+
+	/** このアプリのセキュリティ設定 */
+	@Bean
+	@Order(2)
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        ...(省略)
+    }
+
+    // 変更点 ここから
+    @Bean
+    InMemoryUserDetailsManager userDetailsService() {
+        UserDetails user = User.withUsername("user")
+                .password("user")
+                .roles("GENERAL")
+                .build();
+        UserDetails admin = User.withUsername("admin")
+                .password("admin")
+                .roles("ADMIN")
+                .build();
+        return new InMemoryUserDetailsManager(user, admin);
+    }
+    // ここまで
+}
+```
+
+#### ログイン失敗時のメッセージ変更
+
+バージョンが上がってからデフォルトで Spring が用意しているメッセージソースが使用されようになったため、massages.properties の変更だけではメッセージは変更されません。メッセージを変更するには下記の Bean 定義を追加して、AuthenticationProvider のメッセージソースを変更してやる必要があります。
+
+[JavaConfig.java]
+
+```java
+package com.example.config;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class JavaConfig {
+
+    @Bean
+    ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
+
+    // 変更点ここから
+    @Bean
+    AuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService, MessageSource messageSource) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setMessageSource(messageSource);
+
+        return provider;
+    }
+    // ここまで
+}
+```
