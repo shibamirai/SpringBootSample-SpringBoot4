@@ -161,3 +161,109 @@ MyBatis は Spring Boot 4 に対応したバージョンを使用します。Mod
 ## 9 章 AOP
 
 変更なし
+
+## 10 章 エラー処理
+
+変更なし
+
+## 11 章 Spring セキュリティ
+
+### 11.2.1 直リンクの禁止
+
+Spring Boot 4 の Spring-Boot-Starter-Security では Spring セキュリティのバージョンは 7 となります。それに合わせて Thymeleaf 拡張ライブラリ(セキュリティ)は Thymeleaf-Extras-SpringSecurity6 とします。
+
+[pom.xml]
+
+```xml
+<!-- SpringSecurity -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<!-- Thymeleaf拡張ライブラリ-->
+<dependency>
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+</dependency>
+```
+
+SpringSecurity 5.7 以降から、セキュリティ設定クラスの書き方が大きく変更されています。
+
+- WebSecurityConfigurerAdapter を継承せず、configure で行っている HttpSecurity http へのセキュリティ設定は SecurityFilterChain を Bean 定義して行う
+- webjars や css などはセキュリティ対象外として設定するのではなく、ログイン不要ページとして設定する
+- authorizeRequests()ではなく authorizeHttpRequests()を使う
+- 設定はラムダ式で記述する
+- antMatchers()ではなく requestMatchers()を使う
+- 一般的な静的リソースの場所の指定(/webjars/\*\*, /css/\*\*, /js/\*\*)は、PathRequest.toStaticResources().atCommonLocations() としてまとめて指定する
+- "/login" への直リンク許可設定は、次節のログイン処理設定で行うためここではまだ行わない
+- csrf().disable() は非推奨となったため、ラムダ式で csrf(csrf -> csrf.disabe()) のように指定する
+- H2 コンソールのパス("/h2-console/\*\*")は、PathRequest.toH2Console() として指定する
+- H2 コンソールを表示させるためには、さらに以下の設定が必要
+
+  ```java
+  http.headers(headers -> headers.frameOptions(FrameOptionsConfig::disable));
+  http.csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()));
+  ```
+
+以下では H2 コンソールに対するセキュリティ設定を、別の Bean として独立させています。ですので H2 データベースを使わない場合は下記の h2ConsoleSecurityFilterChain は不要です。（securityFilterChain の @Order(2) も必要ありません）
+
+[SecurityConfig.java]
+
+```java
+package com.example.config;
+
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.web.SecurityFilterChain;
+
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+	/** H2 コンソール用のセキュリティ設定 */
+	@Bean
+	@Order(1)
+    SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.securityMatcher(PathRequest.toH2Console())
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().permitAll()
+			)
+			.headers(headers -> headers
+				.frameOptions(FrameOptionsConfig::disable)
+			)
+			.csrf(csrf -> csrf
+				.ignoringRequestMatchers(PathRequest.toH2Console())
+			);
+		return http.build();
+	}
+
+	/** このアプリのセキュリティ設定 */
+	@Bean
+	@Order(2)
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.requestMatchers("/user/signup").permitAll()
+				.anyRequest().authenticated()
+			)
+			// CSRF 対策を無効に設定 (一時的)
+			.csrf(csrf -> csrf
+		        .disable()
+			);
+		return http.build();
+	}
+}
+```
+
+#### 403 エラーの画面
+
+authorizeHttpRequests()を使用するようになったことで、直リンクをしたときは 403 エラーの共通画面ではなく、ログインページにリダイレクトするようになっています。
+ただし、ここではまだログイン処理を実装していない(11.2.2 で実装)ためリダイレクトされず、403 のエラーコードだけが返されるようになっているため、アプリで用意した共通エラー画面ではなくブラウザのエラー画面が表示されます。
+（403 エラーは 11.3「認可」のところで出すことができます。）
