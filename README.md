@@ -531,6 +531,53 @@ public class SecurityConfig {
 				.defaultSuccessUrl("/user/list", true)
 				.failureUrl("/login?error")
 			)
+			.logout(logout -> logout
+				.logoutUrl("/logout")
+				.logoutSuccessUrl("/login?logout")
+	        // 変更点 ここから
+			// )
+			// // CSRF 対策を無効に設定 (一時的)
+			// .csrf(csrf -> csrf
+		    //     .disable()
+	        // ここまで
+			);
+		return http.build();
+	}
+
+    ...(省略)
+}
+```
+
+### 11.2.7 CSRF 対策
+
+[SecurityConfig.java]
+
+```java
+@EnableWebSecurity
+@Configuration
+public class SecurityConfig {
+
+    ...(省略)
+
+	/** このアプリのセキュリティ設定 */
+	@Bean
+	@Order(2)
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.requestMatchers("/login").permitAll()
+				.requestMatchers("/user/signup").permitAll()
+				.anyRequest().authenticated()
+			)
+			.formLogin(login -> login
+				.loginPage("/login")
+				.loginProcessingUrl("/login")
+				.usernameParameter("userId")
+				.passwordParameter("password")
+				.defaultSuccessUrl("/user/list", true)
+				.failureUrl("/login?error")
+			)
 	        // 変更点 ここから
 			.logout(logout -> logout
 				.logoutUrl("/logout")
@@ -546,3 +593,4 @@ public class SecurityConfig {
 
     ...(省略)
 }
+```

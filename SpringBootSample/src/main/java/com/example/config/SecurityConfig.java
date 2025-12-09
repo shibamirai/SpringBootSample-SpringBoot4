@@ -60,10 +60,10 @@ public class SecurityConfig {
 			.logout(logout -> logout
 				.logoutUrl("/logout")
 				.logoutSuccessUrl("/login?logout")
-			)
-			// CSRF 対策を無効に設定 (一時的)
-			.csrf(csrf -> csrf
-		        .disable()
+//			)
+//			// CSRF 対策を無効に設定 (一時的)
+//			.csrf(csrf -> csrf
+//		        .disable()
 			);
 		return http.build();
 	}
