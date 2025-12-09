@@ -644,3 +644,75 @@ public class SecurityConfig {
     ...(省略)
 }
 ```
+
+## 12 章 REST
+
+### 12.2.3 検索
+
+DataTables は新しいバージョンが使えるので 2.3.2 (2025/12/9 時点の最新) を使用します。それに伴い list.html で読み込むファイル名や、list.js での DataTables の言語設定ファイル名が変わっています。
+
+[pom.xml]
+
+```xml
+<!-- datatables -->
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>datatables</artifactId>
+    <version>2.3.2</version>
+</dependency>
+<!-- datatables-plugins -->
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>datatables-plugins</artifactId>
+    <version>2.3.2</version>
+    <scope>runtime</scope>
+</dependency>
+```
+
+[list.html]
+
+```HTML
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<head>
+	<title>ユーザー一覧</title>
+	<!-- 個別CSS読込 -->
+	<link rel="stylesheet" th:href="@{/css/user/list.css}">
+	<!-- 個別JS読込 -->
+	<!-- 変更点 ここから -->
+	<link rel="stylesheet" th:href="@{/webjars/datatables/css/dataTables.jqueryui.min.css}">
+	<script th:src="@{/webjars/datatables/js/dataTables.min.js}" defer></script>
+	<!-- ここまで -->
+	<script th:src="@{/js/user/list.js}" defer></script>
+</head>
+...(省略)
+```
+
+[list.js]
+
+```javascript
+...(省略)
+
+/** DataTables作成 */
+function createDataTables() {
+	
+	// 既にDataTablesが作成されている場合
+	if (table != null) {
+		// DataTables破棄
+		table.destroy();
+	}
+
+	// DataTables作成
+    table = $('#user-list-table').DataTable({
+		// 日本語化
+		language: {
+			// 変更点 ここから
+			url: '/webjars/datatables-plugins/i18n/ja.json'
+			// ここまで
+		},
+        ...(省略)
+    });
+}
+```
