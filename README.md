@@ -742,3 +742,32 @@ logging.level.org.hibernate.orm.jdbc.bind=trace
 # 起動時の警告をなくすために明示的に有効にしておく
 spring.jpa.open-in-view=true
 ```
+
+## その他
+
+### No static resource favicon.ico for request '/favicon.ico'.
+
+ファビコン(favicon)とは、ウェブサイトのシンボルマークとしてブラウザのタブなどに表示されるアイコンのことです。Spring Boot で作成したアプリでは、もともとデフォルトのファビコンが用意されていましたが、このデフォルトアイコンも情報漏洩にあたる（Spring Boot で作成したことが分かる）ことから、現在は提供されていません。
+
+ファビコンはサイトを参照するとブラウザから自動的に要求されるため、ファビコンが見つからないと、アプリは NoResourceFoundException という例外を発生させ、上記のログが出力されます。
+
+これを回避するには２つの方法があります。
+
+#### 方法 1. 自前のファビコンを用意する
+
+自分でファビコンを作成し、`src/main/resource/static/favicon.ico` に配置します。
+
+#### 方法 2. カスタムコントローラーで対応する
+
+ファビコンへのリクエストを処理するカスタムコントローラーを作成し、何も返さないことでリクエストを無視します。
+
+```java
+public class FaviconController {
+
+	@GetMapping("favicon.ico")
+	@ResponseBody
+	void returnNoFavicon() {
+		// 何もしない		
+	}
+}
+```
