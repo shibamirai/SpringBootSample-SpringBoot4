@@ -380,40 +380,50 @@ public class SecurityConfig {
 
 バージョンが上がってからデフォルトで Spring が用意しているメッセージソースが使用されようになったため、massages.properties の変更だけではメッセージは変更されません。メッセージを変更するには下記の Bean 定義を追加して、AuthenticationProvider のメッセージソースを変更してやる必要があります。
 
-[JavaConfig.java]
+[SecurityConfig.java]
 
 ```java
 package com.example.config;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.context.MessageSource;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
+@EnableWebSecurity
 @Configuration
-public class JavaConfig {
+public class SecurityConfig {
 
     @Bean
-    ModelMapper modelMapper() {
-        return new ModelMapper();
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
-    // 変更点ここから
-    @Bean
-    AuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
-            UserDetailsService userDetailsService, MessageSource messageSource) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setMessageSource(messageSource);
-
-        return provider;
-    }
+    // 変更点 ここから
+	@Bean
+	AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder,
+			UserDetailsService userDetailsService, MessageSource messageSource) {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+		provider.setPasswordEncoder(passwordEncoder);
+		provider.setMessageSource(messageSource);
+		
+		return new ProviderManager(provider);
+	}
     // ここまで
-}
+
+	...(省略)
 ```
 
 ### 11.2.4 パスワードの暗号化
