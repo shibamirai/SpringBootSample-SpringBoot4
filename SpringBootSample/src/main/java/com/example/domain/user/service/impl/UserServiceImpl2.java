@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +51,14 @@ public class UserServiceImpl2 implements UserService {
 	/** ユーザー取得 */
 	@Override
 	public List<MUser> getUsers(MUser user) {
-		return repository.findAll();
+		
+		// 検索条件
+		ExampleMatcher matcher = ExampleMatcher
+				.matching()
+				.withStringMatcher(StringMatcher.CONTAINING) // Like句
+				.withIgnoreCase();
+		
+		return repository.findAll(Example.of(user, matcher));
 	}
 
 	/** ユーザー取得(1件) */
