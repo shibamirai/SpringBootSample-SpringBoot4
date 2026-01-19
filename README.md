@@ -388,7 +388,7 @@ package com.example.config;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -409,15 +409,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // 変更点 ここから
-	@Bean
-	DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder,
-			UserDetailsService userDetailsService, MessageSource messageSource) {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-		provider.setPasswordEncoder(passwordEncoder);
-		provider.setMessageSource(messageSource);
-		return provider;
-	}
+    // 変更点ここから
+    @Bean
+    AuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
+            UserDetailsService userDetailsService, MessageSource messageSource) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setMessageSource(messageSource);
+
+        return provider;
+    }
     // ここまで
 
 	...(省略)
