@@ -298,7 +298,7 @@ public class SecurityConfig {
 				.loginProcessingUrl("/login")
 				.usernameParameter("userId")
 				.passwordParameter("password")
-				.defaultSuccessUrl("/", true)
+				.defaultSuccessUrl("/user/list", true)
 				.failureUrl("/login?error")
 			)
 	        // ここまで
