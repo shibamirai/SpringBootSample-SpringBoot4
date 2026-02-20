@@ -288,7 +288,7 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-				.requestMatchers("/login").permitAll()
+				.requestMatchers("/login").permitAll()	// 変更点："/login" への直リンク許可設定追加
 				.requestMatchers("/user/signup").permitAll()
 				.anyRequest().authenticated()
 			)
